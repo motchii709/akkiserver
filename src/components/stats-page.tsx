@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import type { StatsData, StatsItem } from "@/lib/types"
-import { fetchStats } from "@/lib/api"
+import { fetchStats, fetchStaticStats } from "@/lib/api"
 import { StatsHeader } from "@/components/stats-header"
 import { SearchBar } from "@/components/search-bar"
 import { TopItemsChart } from "@/components/top-items-chart"
@@ -28,7 +28,15 @@ export function StatsPage() {
       setData(result)
       setLastUpdated(new Date().toLocaleString("ja-JP"))
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load stats")
+      const msg = e instanceof Error ? e.message : "Failed to load stats"
+      const fallback = await fetchStaticStats()
+      if (fallback) {
+        setData(fallback)
+        setLastUpdated("(static snapshot)")
+        setError("API unreachable, showing cached data")
+      } else {
+        setError(msg)
+      }
     } finally {
       setLoading(false)
     }
