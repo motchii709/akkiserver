@@ -21,21 +21,23 @@ export function StatsPage() {
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
 
   const load = useCallback(async () => {
-    setLoading(true)
     setError(null)
+
+    const fallback = await fetchStaticStats()
+    if (fallback) {
+      setData(fallback)
+      setLastUpdated("(cached)")
+      setLoading(false)
+    }
+
     try {
       const result = await fetchStats()
       setData(result)
       setLastUpdated(new Date().toLocaleString("ja-JP"))
+      setError(null)
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Failed to load stats"
-      const fallback = await fetchStaticStats()
-      if (fallback) {
-        setData(fallback)
-        setLastUpdated("(static snapshot)")
-        setError("API unreachable, showing cached data")
-      } else {
-        setError(msg)
+      if (!fallback) {
+        setError(e instanceof Error ? e.message : "Failed to load stats")
       }
     } finally {
       setLoading(false)
