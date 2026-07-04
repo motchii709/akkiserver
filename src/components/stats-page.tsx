@@ -92,9 +92,9 @@ export function StatsPage() {
     setApiStatus("fetching")
     setError(null)
 
-    // Load static fallback instantly
+    // Always refresh from static cache, then try live API
     const fallback = await fetchStaticStats()
-    if (fallback && !data) {
+    if (fallback) {
       setData(fallback)
       setLastUpdated("Cached Snapshot")
       setApiStatus("cached")
@@ -108,15 +108,13 @@ export function StatsPage() {
       setApiStatus("live")
       setError(null)
     } catch (e) {
-      if (!fallback && !data) {
+      if (!fallback) {
         setError(e instanceof Error ? e.message : "Failed to load statistics")
-      } else {
-        setApiStatus("cached")
       }
     } finally {
       setLoading(false)
     }
-  }, [data])
+  }, [])
 
   useEffect(() => {
     load()
