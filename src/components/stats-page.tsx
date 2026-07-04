@@ -490,126 +490,99 @@ export function StatsPage() {
 
         {/* Content Tabs (Grid, Table, By Mod) */}
         <Tabs defaultValue="grid" className="w-full">
-          <div className="flex items-center justify-between border-b border-border/30 pb-2">
-            <TabsList className="bg-transparent h-auto p-0 gap-4">
+          <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
+            <TabsList className="bg-transparent h-auto p-0 gap-6">
               <TabsTrigger
                 value="grid"
-                className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground px-0 py-1 rounded-none text-xs font-semibold uppercase tracking-wider text-muted-foreground data-[state=active]:text-foreground border-b-2 border-transparent cursor-pointer h-8"
+                className="px-0 py-1.5 rounded-none text-xs font-semibold uppercase tracking-wider text-zinc-500 data-active:text-zinc-100 data-active:border-b-2 data-active:border-zinc-100 border-b-2 border-transparent cursor-pointer h-auto"
               >
-                <GridIcon /> Grid View
+                <GridIcon /> Grid
               </TabsTrigger>
               <TabsTrigger
                 value="table"
-                className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground px-0 py-1 rounded-none text-xs font-semibold uppercase tracking-wider text-muted-foreground data-[state=active]:text-foreground border-b-2 border-transparent cursor-pointer h-8"
+                className="px-0 py-1.5 rounded-none text-xs font-semibold uppercase tracking-wider text-zinc-500 data-active:text-zinc-100 data-active:border-b-2 data-active:border-zinc-100 border-b-2 border-transparent cursor-pointer h-auto"
               >
-                <ListIcon /> Table View
+                <ListIcon /> Table
               </TabsTrigger>
               <TabsTrigger
                 value="mods"
-                className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground px-0 py-1 rounded-none text-xs font-semibold uppercase tracking-wider text-muted-foreground data-[state=active]:text-foreground border-b-2 border-transparent cursor-pointer h-8"
+                className="px-0 py-1.5 rounded-none text-xs font-semibold uppercase tracking-wider text-zinc-500 data-active:text-zinc-100 data-active:border-b-2 data-active:border-zinc-100 border-b-2 border-transparent cursor-pointer h-auto"
               >
-                <LayoutIcon /> Mod Group
+                <LayoutIcon /> Mod
               </TabsTrigger>
             </TabsList>
 
-            <span className="text-[11px] font-mono font-semibold text-muted-foreground">
-              Showing {filteredItems.length} of {allItems.length} types
+            <span className="text-[11px] font-mono font-semibold text-zinc-500">
+              {filteredItems.length} / {allItems.length} types
             </span>
           </div>
 
-          {/* Grid View Content */}
+          {/* Grid View */}
           <TabsContent value="grid" className="mt-4 outline-none">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {filteredItems.map((item) => {
-                const pct = Math.round((item.count / maxCount) * 100)
-                const color = getNamespaceColor(item.namespace)
-                return (
-                  <div
-                    key={item.id}
-                    className="group relative flex items-center gap-3.5 p-4 rounded-xl border border-border/40 hover:border-border bg-zinc-950/5 hover:bg-zinc-950/20 transition-all shadow-none duration-200"
-                  >
-                    <ItemIcon namespace={item.namespace} name={item.name} />
-                    <div className="flex-1 min-w-0 space-y-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-semibold text-xs text-foreground truncate block">
-                          {item.displayName}
-                        </span>
-                        <span className="font-mono text-xs font-bold text-foreground/80 select-all shrink-0">
+            {filteredItems.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {filteredItems.map((item) => {
+                  const pct = Math.round((item.count / maxCount) * 100)
+                  const color = getNamespaceColor(item.namespace)
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex flex-col p-4 rounded-xl border border-zinc-800/60 bg-zinc-900/20 hover:bg-zinc-900/40 hover:border-zinc-700 transition-all"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <ItemIcon namespace={item.namespace} name={item.name} />
+                        <span className="font-mono text-sm font-bold text-zinc-100">
                           {item.count.toLocaleString()}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between text-[10px] text-muted-foreground font-semibold uppercase">
-                        <span style={{ color }}>{item.namespace}</span>
-                        <span className="font-mono">{pct}%</span>
+                      <div className="space-y-2">
+                        <span className="block text-sm font-semibold text-zinc-200 truncate">
+                          {item.displayName}
+                        </span>
+                        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
+                          <span style={{ color }}>{item.namespace}</span>
+                          <span className="text-zinc-500 font-mono">{pct}%</span>
+                        </div>
+                        <Progress value={pct} className="h-1 bg-zinc-800" />
                       </div>
-                      <Progress
-                        value={pct}
-                        className="h-1 bg-zinc-950/10"
-                        style={
-                          {
-                            "--color-bg": color,
-                          } as React.CSSProperties
-                        }
-                      />
                     </div>
-                  </div>
-                )
-              })}
-            </div>
-            {filteredItems.length === 0 && (
-              <div className="text-center py-16 border border-dashed border-border/50 rounded-xl bg-zinc-950/5">
-                <p className="text-sm text-muted-foreground font-medium">No inventory stocks matching search</p>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-16 border border-dashed border-zinc-800 rounded-xl">
+                <p className="text-sm text-zinc-500">No items match your search</p>
               </div>
             )}
           </TabsContent>
 
-          {/* Table View Content */}
+          {/* Table View */}
           <TabsContent value="table" className="mt-4 outline-none">
-            <div className="border border-border/40 rounded-xl overflow-hidden bg-zinc-950/5">
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-left text-xs">
+            {filteredItems.length > 0 ? (
+              <div className="border border-zinc-800 rounded-xl overflow-hidden">
+                <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-border/40 bg-zinc-900/10 text-muted-foreground font-semibold uppercase tracking-wider">
-                      <th className="py-3 px-4 w-12 text-center">#</th>
-                      <th className="py-3 px-4">Item Name</th>
-                      <th className="py-3 px-4 w-40">Mod Namespace</th>
-                      <th className="py-3 px-4 w-32 text-right">Count</th>
-                      <th className="py-3 px-4 w-44">Ratio to Max</th>
+                    <tr className="border-b border-zinc-800 bg-zinc-900/30 text-zinc-500 font-semibold uppercase tracking-wider">
+                      <th className="py-3 px-4 w-10 text-center">#</th>
+                      <th className="py-3 px-4">Item</th>
+                      <th className="py-3 px-4 w-28">Mod</th>
+                      <th className="py-3 px-4 w-24 text-right">Count</th>
+                      <th className="py-3 px-4 w-36">Ratio</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border/20 font-medium">
-                    {filteredItems.map((item, index) => {
+                  <tbody className="divide-y divide-zinc-800/50">
+                    {filteredItems.map((item, i) => {
                       const pct = Math.round((item.count / maxCount) * 100)
-                      const color = getNamespaceColor(item.namespace)
                       return (
-                        <tr key={item.id} className="hover:bg-zinc-900/10 transition-colors">
-                          <td className="py-3.5 px-4 text-center font-mono text-muted-foreground text-[10px]">
-                            {index + 1}
-                          </td>
-                          <td className="py-3.5 px-4 flex items-center gap-3">
-                            <ItemIcon namespace={item.namespace} name={item.name} />
-                            <span className="font-semibold text-foreground truncate">{item.displayName}</span>
-                          </td>
-                          <td className="py-3.5 px-4 uppercase text-[10px] tracking-wider">
-                            <span className="px-2 py-0.5 rounded-md border border-border/40 text-xs font-semibold" style={{ color, borderColor: `${color}25`, backgroundColor: `${color}05` }}>
-                              {item.namespace}
-                            </span>
-                          </td>
-                          <td className="py-3.5 px-4 text-right font-mono font-bold text-foreground select-all">
-                            {item.count.toLocaleString()}
-                          </td>
-                          <td className="py-3.5 px-4">
-                            <div className="flex items-center gap-2.5">
-                              <Progress
-                                value={pct}
-                                className="h-1 bg-zinc-950/10 flex-1"
-                                style={
-                                  {
-                                    "--color-bg": color,
-                                  } as React.CSSProperties
-                                }
-                              />
-                              <span className="font-mono text-[10px] text-muted-foreground text-right w-8">{pct}%</span>
+                        <tr key={item.id} className="hover:bg-zinc-900/20 transition-colors">
+                          <td className="py-3 px-4 text-center text-zinc-500 font-mono text-[10px]">{i + 1}</td>
+                          <td className="py-3 px-4 font-medium">{item.displayName}</td>
+                          <td className="py-3 px-4 text-zinc-400 uppercase tracking-wider text-[10px]">{item.namespace}</td>
+                          <td className="py-3 px-4 text-right font-mono font-bold">{item.count.toLocaleString()}</td>
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-2">
+                              <Progress value={pct} className="flex-1 h-1" />
+                              <span className="font-mono text-[10px] text-zinc-500 w-8 text-right">{pct}%</span>
                             </div>
                           </td>
                         </tr>
@@ -618,55 +591,37 @@ export function StatsPage() {
                   </tbody>
                 </table>
               </div>
-              {filteredItems.length === 0 && (
-                <div className="text-center py-16">
-                  <p className="text-sm text-muted-foreground font-medium">No inventory stocks matching search</p>
-                </div>
-              )}
-            </div>
+            ) : (
+              <div className="text-center py-16 border border-dashed border-zinc-800 rounded-xl">
+                <p className="text-sm text-zinc-500">No items match your search</p>
+              </div>
+            )}
           </TabsContent>
 
-          {/* Group View Content */}
+          {/* Mod Group View */}
           <TabsContent value="mods" className="mt-4 outline-none space-y-4">
             {modChartData.map((mod) => {
               const modItems = allItems.filter((i) => i.namespace === mod.name)
-              const matchedModItems = filteredItems.filter((i) => i.namespace === mod.name)
-              if (matchedModItems.length === 0 && selectedMod !== "all") return null
-
+              const visible = selectedMod === "all" || selectedMod === mod.name
+              if (!visible) return null
               return (
-                <div
-                  key={mod.name}
-                  className="p-5 rounded-xl border border-border/40 bg-zinc-950/5 hover:bg-zinc-950/15 transition-all space-y-4"
-                >
-                  <div className="flex items-center justify-between pb-3 border-b border-border/20">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: mod.color }} />
-                      <span className="font-bold text-sm text-foreground uppercase tracking-wider">{mod.name}</span>
-                      <span className="text-xs text-muted-foreground font-medium">({modItems.length} types)</span>
+                <div key={mod.name} className="p-4 rounded-xl border border-zinc-800/60 bg-zinc-900/10">
+                  <div className="flex items-center justify-between pb-3 mb-3 border-b border-zinc-800/40">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: mod.color }} />
+                      <span className="font-bold text-sm uppercase tracking-wider">{mod.name}</span>
+                      <span className="text-xs text-zinc-500">({modItems.length})</span>
                     </div>
-                    <span className="font-mono font-bold text-xs text-muted-foreground">
-                      Total Stock: {mod.value.toLocaleString()}
-                    </span>
+                    <span className="text-xs font-mono text-zinc-500">{mod.value.toLocaleString()}</span>
                   </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                    {matchedModItems.slice(0, 12).map((item) => {
-                      const pct = Math.round((item.count / maxCount) * 100)
-                      return (
-                        <div key={item.id} className="flex items-center justify-between p-2 rounded-lg bg-zinc-900/10 border border-border/20 text-xs">
-                          <span className="text-muted-foreground truncate font-medium mr-2">{item.displayName}</span>
-                          <span className="font-mono font-bold text-foreground shrink-0">{item.count.toLocaleString()}</span>
-                        </div>
-                      )
-                    })}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                    {modItems.slice(0, 12).map((item) => (
+                      <div key={item.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-zinc-900/30 text-xs">
+                        <span className="truncate mr-2">{item.displayName}</span>
+                        <span className="font-mono font-bold shrink-0">{item.count.toLocaleString()}</span>
+                      </div>
+                    ))}
                   </div>
-                  {modItems.length > 12 && (
-                    <div className="text-center pt-2">
-                      <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
-                        + {modItems.length - 12} more items in this mod namespace
-                      </span>
-                    </div>
-                  )}
                 </div>
               )
             })}
