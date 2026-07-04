@@ -16,28 +16,36 @@ export function ItemCard({ item, maxCount }: ItemCardProps) {
   const modColor = getNamespaceColor(item.namespace)
 
   return (
-    <div className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border/50 hover:border-border transition-colors">
-      <ItemIcon namespace={item.namespace} name={item.name} size="md" />
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="font-medium truncate">{item.displayName}</span>
-          <Badge
-            variant="outline"
-            className="shrink-0 text-[10px] px-1.5 py-0 h-5"
-            style={{
-              borderColor: `${modColor}40`,
-              color: modColor,
-            }}
-          >
-            {item.namespace}
-          </Badge>
-        </div>
-        <div className="flex items-center gap-2 mt-1.5">
-          <Progress value={pct} className="h-1.5 flex-1" />
-          <span className="text-sm font-mono tabular-nums text-muted-foreground shrink-0">
+    <div className="group flex flex-col p-4 rounded-2xl bg-card border border-border/50 hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/5 transition-all">
+      <div className="flex items-start justify-between mb-3">
+        <ItemIcon namespace={item.namespace} name={item.name} size="md" />
+        <Badge
+          variant="outline"
+          className="text-[10px] font-bold px-2 py-0.5"
+          style={{
+            borderColor: `${modColor}40`,
+            backgroundColor: `${modColor}10`,
+            color: modColor,
+          }}
+        >
+          {item.namespace}
+        </Badge>
+      </div>
+      
+      <div className="flex-1">
+        <h3 className="font-semibold text-sm leading-tight group-hover:text-emerald-400 transition-colors">
+          {item.displayName}
+        </h3>
+      </div>
+
+      <div className="mt-4 pt-3 border-t border-border/30">
+        <div className="flex justify-between items-baseline mb-1">
+          <span className="text-xs text-muted-foreground font-medium">Quantity</span>
+          <span className="font-mono font-bold text-lg tabular-nums">
             {item.count.toLocaleString()}
           </span>
         </div>
+        <Progress value={pct} className="h-1.5" />
       </div>
     </div>
   )
