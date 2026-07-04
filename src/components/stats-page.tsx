@@ -12,8 +12,6 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ScrollArea } from "@/components/ui/scroll-area"
 
 // Recharts
 import {
@@ -88,6 +86,7 @@ export function StatsPage() {
   const [selectedMod, setSelectedMod] = useState<string>("all")
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
   const [apiStatus, setApiStatus] = useState<"live" | "cached" | "fetching">("fetching")
+  const [viewTab, setViewTab] = useState<"grid" | "table" | "mods">("grid")
 
   const load = useCallback(async () => {
     setApiStatus("fetching")
@@ -415,7 +414,7 @@ export function StatsPage() {
               </div>
             </div>
 
-            <ScrollArea className="h-20 border-t border-border/20 pt-2">
+            <div className="max-h-20 overflow-y-auto border-t border-border/20 pt-2">
               <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 pb-2">
                 {modChartData.slice(0, 6).map((entry) => (
                   <div key={entry.name} className="flex items-center justify-between text-[10px]">
@@ -432,7 +431,7 @@ export function StatsPage() {
                   </div>
                 ))}
               </div>
-            </ScrollArea>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -488,38 +487,36 @@ export function StatsPage() {
           </div>
         </div>
 
-        {/* Content Tabs (Grid, Table, By Mod) */}
-        <Tabs defaultValue="grid" className="w-full">
+{/* Simple state tabs */}
+        <div className="space-y-4">
           <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
-            <TabsList className="bg-transparent h-auto p-0 gap-6">
-              <TabsTrigger
-                value="grid"
-                className="px-0 py-1.5 rounded-none text-xs font-semibold uppercase tracking-wider text-zinc-500 data-active:text-zinc-100 data-active:border-b-2 data-active:border-zinc-100 border-b-2 border-transparent cursor-pointer h-auto"
-              >
-                <GridIcon /> Grid
-              </TabsTrigger>
-              <TabsTrigger
-                value="table"
-                className="px-0 py-1.5 rounded-none text-xs font-semibold uppercase tracking-wider text-zinc-500 data-active:text-zinc-100 data-active:border-b-2 data-active:border-zinc-100 border-b-2 border-transparent cursor-pointer h-auto"
-              >
-                <ListIcon /> Table
-              </TabsTrigger>
-              <TabsTrigger
-                value="mods"
-                className="px-0 py-1.5 rounded-none text-xs font-semibold uppercase tracking-wider text-zinc-500 data-active:text-zinc-100 data-active:border-b-2 data-active:border-zinc-100 border-b-2 border-transparent cursor-pointer h-auto"
-              >
-                <LayoutIcon /> Mod
-              </TabsTrigger>
-            </TabsList>
-
+            <div className="flex gap-6">
+              {(["grid", "table", "mods"] as const).map((tab) => {
+                const active = viewTab === tab
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => setViewTab(tab)}
+                    className={`px-0 py-1.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
+                      active
+                        ? "text-zinc-100 border-zinc-100"
+                        : "text-zinc-500 border-transparent hover:text-zinc-300"
+                    }`}
+                  >
+                    {tab === "grid" && <><GridIcon /> Grid</>}
+                    {tab === "table" && <><ListIcon /> Table</>}
+                    {tab === "mods" && <><LayoutIcon /> Mod</>}
+                  </button>
+                )
+              })}
+            </div>
             <span className="text-[11px] font-mono font-semibold text-zinc-500">
               {filteredItems.length} / {allItems.length} types
             </span>
           </div>
 
-          {/* Grid View */}
-          <TabsContent value="grid" className="mt-4 outline-none">
-            {filteredItems.length > 0 ? (
+          {viewTab === "grid" && (
+            filteredItems.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 {filteredItems.map((item) => {
                   const pct = Math.round((item.count / maxCount) * 100)
@@ -553,12 +550,11 @@ export function StatsPage() {
               <div className="text-center py-16 border border-dashed border-zinc-800 rounded-xl">
                 <p className="text-sm text-zinc-500">No items match your search</p>
               </div>
-            )}
-          </TabsContent>
+            )
+          )}
 
-          {/* Table View */}
-          <TabsContent value="table" className="mt-4 outline-none">
-            {filteredItems.length > 0 ? (
+          {viewTab === "table" && (
+            filteredItems.length > 0 ? (
               <div className="border border-zinc-800 rounded-xl overflow-hidden">
                 <table className="w-full text-left text-xs">
                   <thead>
@@ -595,38 +591,37 @@ export function StatsPage() {
               <div className="text-center py-16 border border-dashed border-zinc-800 rounded-xl">
                 <p className="text-sm text-zinc-500">No items match your search</p>
               </div>
-            )}
-          </TabsContent>
+            )
+          )}
 
-          {/* Mod Group View */}
-          <TabsContent value="mods" className="mt-4 outline-none space-y-4">
-            {modChartData.map((mod) => {
-              const modItems = allItems.filter((i) => i.namespace === mod.name)
-              const visible = selectedMod === "all" || selectedMod === mod.name
-              if (!visible) return null
-              return (
-                <div key={mod.name} className="p-4 rounded-xl border border-zinc-800/60 bg-zinc-900/10">
-                  <div className="flex items-center justify-between pb-3 mb-3 border-b border-zinc-800/40">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: mod.color }} />
-                      <span className="font-bold text-sm uppercase tracking-wider">{mod.name}</span>
-                      <span className="text-xs text-zinc-500">({modItems.length})</span>
-                    </div>
-                    <span className="text-xs font-mono text-zinc-500">{mod.value.toLocaleString()}</span>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                    {modItems.slice(0, 12).map((item) => (
-                      <div key={item.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-zinc-900/30 text-xs">
-                        <span className="truncate mr-2">{item.displayName}</span>
-                        <span className="font-mono font-bold shrink-0">{item.count.toLocaleString()}</span>
+          {viewTab === "mods" && (
+            <div className="space-y-4">
+              {modChartData.map((mod) => {
+                const modItems = allItems.filter((i) => i.namespace === mod.name)
+                return (
+                  <div key={mod.name} className="p-4 rounded-xl border border-zinc-800/60 bg-zinc-900/10">
+                    <div className="flex items-center justify-between pb-3 mb-3 border-b border-zinc-800/40">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: mod.color }} />
+                        <span className="font-bold text-sm uppercase tracking-wider">{mod.name}</span>
+                        <span className="text-xs text-zinc-500">({modItems.length})</span>
                       </div>
-                    ))}
+                      <span className="text-xs font-mono text-zinc-500">{mod.value.toLocaleString()}</span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                      {modItems.slice(0, 12).map((item) => (
+                        <div key={item.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-zinc-900/30 text-xs">
+                          <span className="truncate mr-2">{item.displayName}</span>
+                          <span className="font-mono font-bold shrink-0">{item.count.toLocaleString()}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )
-            })}
-          </TabsContent>
-        </Tabs>
+                )
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
