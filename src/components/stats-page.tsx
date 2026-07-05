@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { fetchStats, fetchStaticStats } from "@/lib/api"
-import type { StatsData, StatsItem } from "@/lib/types"
+import type { StatsData } from "@/lib/types"
 import { getNamespaceColor, formatItemName } from "@/lib/utils"
 
 // UI Components
@@ -456,11 +456,11 @@ export function StatsPage() {
               />
             </div>
 
-            {/* Simple Select buttons for namespaces */}
-            <div className="flex items-center gap-1.5 h-9 bg-zinc-900/10 border border-border/40 rounded-lg p-1">
+            {/* Mod filter buttons - scrollable */}
+            <div className="flex items-center gap-1.5 h-9 bg-zinc-900/10 border border-border/40 rounded-lg p-1 overflow-x-auto max-w-[300px] md:max-w-md shrink-0">
               <button
                 onClick={() => setSelectedMod("all")}
-                className={`px-2.5 py-1 text-[10px] font-bold uppercase rounded-md tracking-wider transition-all cursor-pointer ${
+                className={`shrink-0 px-2.5 py-1 text-[10px] font-bold uppercase rounded-md tracking-wider transition-all cursor-pointer ${
                   selectedMod === "all"
                     ? "bg-zinc-900 text-zinc-100 border border-zinc-800 shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
@@ -468,11 +468,11 @@ export function StatsPage() {
               >
                 All
               </button>
-              {modsList.slice(0, 4).map((mod) => (
+              {modsList.map((mod) => (
                 <button
                   key={mod}
                   onClick={() => setSelectedMod(mod)}
-                  className={`px-2.5 py-1 text-[10px] font-bold uppercase rounded-md tracking-wider transition-all cursor-pointer ${
+                  className={`shrink-0 px-2.5 py-1 text-[10px] font-bold uppercase rounded-md tracking-wider transition-all cursor-pointer ${
                     selectedMod === mod
                       ? "bg-zinc-900 text-zinc-100 border border-zinc-800 shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
@@ -538,7 +538,7 @@ export function StatsPage() {
                           <span style={{ color }}>{item.namespace}</span>
                           <span className="text-zinc-500 font-mono">{pct}%</span>
                         </div>
-                        <Progress value={pct} className="h-1 bg-zinc-800" />
+                        <Progress value={pct} className="h-1 bg-zinc-800" style={{"--pi-color": color} as React.CSSProperties} />
                       </div>
                     </div>
                   )
@@ -567,15 +567,16 @@ export function StatsPage() {
                   <tbody className="divide-y divide-zinc-800/50">
                     {filteredItems.map((item, i) => {
                       const pct = Math.round((item.count / maxCount) * 100)
+                      const color = getNamespaceColor(item.namespace)
                       return (
                         <tr key={item.id} className="hover:bg-zinc-900/20 transition-colors">
                           <td className="py-3 px-4 text-center text-zinc-500 font-mono text-[10px]">{i + 1}</td>
                           <td className="py-3 px-4 font-medium">{item.displayName}</td>
-                          <td className="py-3 px-4 text-zinc-400 uppercase tracking-wider text-[10px]">{item.namespace}</td>
+                          <td className="py-3 px-4 text-zinc-400 uppercase tracking-wider text-[10px]" style={{ color }}>{item.namespace}</td>
                           <td className="py-3 px-4 text-right font-mono font-bold">{item.count.toLocaleString()}</td>
                           <td className="py-3 px-4">
                             <div className="flex items-center gap-2">
-                              <Progress value={pct} className="flex-1 h-1" />
+                              <Progress value={pct} className="flex-1 h-1" style={{"--pi-color": color} as React.CSSProperties} />
                               <span className="font-mono text-[10px] text-zinc-500 w-8 text-right">{pct}%</span>
                             </div>
                           </td>
@@ -594,7 +595,9 @@ export function StatsPage() {
 
           {viewTab === "mods" && (
             <div className="space-y-4">
-              {modChartData.map((mod) => {
+              {modChartData
+                .filter((mod) => selectedMod === "all" || mod.name === selectedMod)
+                .map((mod) => {
                 const modItems = allItems.filter((i) => i.namespace === mod.name)
                 return (
                   <div key={mod.name} className="p-4 rounded-xl border border-zinc-800/60 bg-zinc-900/10">
